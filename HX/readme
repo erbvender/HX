@@ -1,0 +1,36 @@
+
+***If you have not estimated the error you have not measured at all.***
+
+-Calibrating and taring is outside this scope
+
+This library is just aimed to get decent counts from the loadcell.
+The approach is not far from beeing scietific.
+
+The output is averaged in chunks of ten (to save ram), and has to have a RMS under "RMS_LIM" to pass.
+
+To lower RMS, averegeing can bee increased by adding a spikefilter to eatch of the ten points that is needed for the RMS-calculation. The ten points is saved in an array before the RMS-calculation can take place.
+
+The RMS_LIM is defined as number of "noice free bits" bits and can bee adusted.
+
+The spikefilter can bee added to each point by setting AVG_NR to at least 3. The reason to at least 3 is beacause the smallest and largest points are excluded. 
+
+The number of tries to get under RMS_LIM is RMS_TRY and works like a filter for more intermittent interferences. The number of tries that is needed to pass is saved in a variable called RMS_TRIES, for evaluation.
+
+If powersaveing is an issue RMS_LIM can't bee to low while RMS_TRY is high, but it can bee 'ok' if low noice is the focus.
+The risk of having "missing data" also has to be considered.
+
+There are two "get_counts" functions, one has an increasing RMS_LIM. A way to find a balance between powersaveing and resolution, without being strict regarding the RMS_LIM.
+
+SNR_BITS is shifting out a number of bits from the RMS-filtered output, to get a flicker free reading. If reading is not stable after filtering and optional SNR-shift, the reason is probably drift.
+
+Drift is actually the reason for this library. The hx711 pcb's comes in different models, but those I have tested has series resistors that are temperature sensitive or missmatched. These resistors can be desoldered and replaced with a blob of solder or 0 ohm resistor. These resistors are seldom needed anyway and the loadcell has an resistance already. The resistors also lessens the span.
+
+I have encountered a nuber of sheep loadcells from ebay with a thermal drift far larger than the certificate tells, both bias and gain drift. To actually be shure the hx711 has to bee free from thermal drift or in par with spec. Hx711 (chip) offset drift is 60 nV/10C witch means bit number 5 from the end, and you can only measure it if the noice is less. The loadcell use to have an thermal drift of 0.02% of full span per 10C, witch means 6.6 mV/ 5000 = 1.3 uV if the loadcell is excited with 3.3V. That means bit nuber 9 from the end, if 128 pga is used on the hx711.
+
+Temperature is not an issue if the scale is used inside a temperated place, but a lot of folks use the loadcells for beehive measurement and it is no point of measuring the weight if the error is not estimated, at least rough.
+
+To sum it up:
+The sheap loadcells on ebay has to be tested, some are ok some certificate sucks
+To test the loadcells the hx711 has to work properly, get 5ppm/C resistors and make a voltage divider in stead of the load cell and shield it
+Place the hx711 close to the loadcell, seems like the cable is picking up some noice, not really shure. The analog side is most important
+
