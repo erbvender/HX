@@ -3,10 +3,10 @@
 
 -Calibrating and taring is outside this scope
 
-This library is just aimed to get decent counts from the loadcell.
+This library is aimed to read noicefree counts with settable margin, from the loadcell.
 The approach is not far from beeing scietific.
 
-The output is averaged in chunks of ten (to save ram), and has to have a RMS under "RMS_LIM" to pass.
+The output is averaged in chunks of ten (to save ram and calculate rms), and has to have a RMS under "RMS_LIM" to pass.
 
 To lower RMS, averegeing can bee increased by adding a spikefilter to eatch of the ten points that is needed for the RMS-calculation. The ten points is saved in an array before the RMS-calculation can take place.
 
@@ -19,7 +19,7 @@ The number of tries to get under RMS_LIM is RMS_TRY and works like a filter for 
 If powersaveing is an issue RMS_LIM can't bee to low while RMS_TRY is high, but it can bee 'ok' if low noice is the focus.
 The risk of having "missing data" also has to be considered.
 
-There are two "get_counts" functions, one has an increasing RMS_LIM. A way to find a balance between powersaveing and resolution, without being strict regarding the RMS_LIM.
+//There are two "get_counts" functions, one has an increasing RMS_LIM. A way to find a balance between powersaveing and resolution, without being strict regarding the RMS_LIM.
 
 SNR_BITS is shifting out a number of bits from the RMS-filtered output, to get a flicker free reading. If reading is not stable after filtering and optional SNR-shift, the reason is probably drift.
 
@@ -30,7 +30,19 @@ I have encountered a nuber of sheep loadcells from ebay with a thermal drift far
 Temperature is not an issue if the scale is used inside a temperated place, but a lot of folks use the loadcells for beehive measurement and it is no point of measuring the weight if the error is not estimated, at least rough.
 
 To sum it up:
-The sheap loadcells on ebay has to be tested, some are ok some certificate sucks
+This regards to daytemperature variations that normally found outdoors(in Sweden)
+Seasonal comparisons may cause temperrors large enough to degrade the guaranteed 3000 steps from loadcell
+
+The sheap loadcells on ebay has to be tested, some are ok some certificate sucks, regarding temperature.
 To test the loadcells the hx711 has to work properly, get 5ppm/C resistors and make a voltage divider in stead of the load cell and shield it
+Optionally, desolder the series filter resistor on the hx711 pcb. Switching loadcell inputs can make small remaining temperature error cancel instead of adding.
 Place the hx711 close to the loadcell, seems like the cable is picking up some noice, not really shure. The analog side is most important
+
+It should be possible to get 19-20 noice free bits from the now non temperature dependent HX711, so its possible to confirm that loadcell temperature drift not exceeding bit 9-10 for 10C temp differences.(0.02% of 6mV is 1.2 uV, lsb for hx711 is 2.3 nV)
+That leavs at least 15 bits to measure loadcells in 3000 steps.
+3000 steps is just 12 bits, 3 bits are needed for the non ideal loadcell span (approx. 6mV) compared to hx711 (40 mV)
+
+I use to place the nonloaded loadcell in the fridge, to test temp offset error
+Then test it with a load, to test temp span error. Temp error with load should be the same as without.
+Span error use to be certified to 60ppm/10C witch is less than temp offset error, even with max load.
 
